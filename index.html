@@ -372,6 +372,21 @@
         #id-ul-song-list {
             position: absolute;
         }
+        .hap-tooltip {
+            position: absolute;
+            background: #ff2a67;
+            color: #fff!important;
+            text-align: center;
+            z-index: 10000;
+            pointer-events: none;
+            -moz-box-shadow: 1px 1px 8px #444;
+            -webkit-box-shadow: 1px 1px 8px #444;
+            box-shadow: 1px 1px 8px #444;
+            border-radius: 1px;
+            display: none;
+            top: 150px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -415,14 +430,8 @@
         </div>
         <div class="hap-playlist-holder">
             <ul id='id-ul-song-list'></ul>
-
-            <div id="overlayscrollbar"></div>
-            <!--<div class="hap-bottom-bar">-->
-                <!--&lt;!&ndash;<input class="hap-search-filter" type="text" value="">&ndash;&gt;-->
-                <!--<div class="hap-sort-alpha" data-tooltip="Alphabetic sort"></div>-->
-            <!--</div>-->
-
         </div>
+        <div class="hap-tooltip" style=""><p>2:10 / 3:11</p></div>
     </div>
     <!-- ul 是用来放播放列表的 -->
 

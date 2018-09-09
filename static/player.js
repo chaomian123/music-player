@@ -62,10 +62,6 @@ const bindEventPlay = (event, player) => {
             player.play()
         }
 }
-const changeCover = (player) => {
-    let songname = player.src
-    log(songname)
-}
 
 const bindEventsPlay = (player) => {
     let list = e('#id-ul-song-list')
@@ -211,7 +207,7 @@ const bindEventEnded = (player) => {
 const bindEventCurrentTime = function(player) {
     let a = player
     let currentTime = e('.hap-progress-level')
-    a.addEventListener('canplay', function(event) {
+    a.addEventListener('canplay', (event) => {
         setInterval(function() {
             let time = a.currentTime
             let totaltime = a.duration
@@ -221,20 +217,55 @@ const bindEventCurrentTime = function(player) {
     })
 }
 
-const seekProgress = () => {
-
+const seekProgress = (player) => {
+    let time = a.duration
+    let totalMinutes = (time / 60).toFixed(0)
+    let totalSeconds = (time % 60).toFixed(0)
+    log('totalMinutes , totalSeconds',typeof totalMinutes ,totalSeconds )
+    setInterval(function() {
+        let current = a.currentTime
+        let minutes = (current / 60).toFixed(0)
+        let Seconds = (current % 60).toFixed(0)
+        totalTime.innerHTML = `${minutes}分${seconds}秒`
+    },1000)
 }
-const bindEventTotalTime = function(player) {
-    let a = player
-    let totalTime = e('#id-totalTime-span')
-    a.addEventListener('canplay', function(event) {
-        let time = a.duration
-        let minutes = (time / 60).toFixed(0)
-        let seconds = (time % 60).toFixed(0)
-        log('minutes , seconds',typeof minutes ,seconds )
-        setInterval(function() {
-            totalTime.innerHTML = `${minutes}分${seconds}秒`
-        },1000)
+const bindEventShowTime = function(player) {
+    // let totalTime = e('#id-totalTime-span')
+    let seekbar = e('.hap-seekbar')
+    let tooltip = e('.hap-tooltip')
+    seekbar.addEventListener('mousemove', (event) => {
+        let self = event.target
+        let seekX = Number(event.offsetX)
+        let totalTime = player.duration
+        if (!totalTime) {
+            return
+        }
+        tooltip.style.display = 'block'
+
+        let current = seekX / 280 * totalTime
+        let minutes = (current / 60).toFixed(0)
+        let seconds = (current % 60).toFixed(0)
+        if (seconds < 10) {
+            seconds = '0' + seconds
+            log('seconds',seconds)
+        }
+
+        let totalMinutes = (totalTime / 60).toFixed(0)
+        let totalSeconds = (totalTime % 60).toFixed(0)
+        if (totalSeconds < 10) {
+            totalSeconds = '0' + totalSeconds
+        }
+        tooltip.innerHTML = `<p>${minutes}:${seconds} / ${totalMinutes}:${totalSeconds} </p>`
+        if (seekX < 250) {
+            tooltip.style.left = event.offsetX + 'px'
+        } else {
+            tooltip.style.left = '250px'
+        }
+    })
+
+    seekbar.addEventListener('mouseout', (event) => {
+        tooltip.style.display = 'none'
+        log('离开了')
     })
 }
 
@@ -261,7 +292,9 @@ const bindEventCanplay = function(player) {
     })
 }
 
+const BindEventLoadLevel = (player) => {
 
+}
 const btnAnimation = () => {
     let container = e('#hap-wrapper')
     container.addEventListener('mouseover', (event) => {
@@ -279,6 +312,8 @@ const btnAnimation = () => {
             self.classList.remove('hap-icon-rollover-color')
         }
     })
+
+
 }
 const bindEvents = (player, cover) => {
     bindEventCurrentTime(player)
@@ -289,6 +324,7 @@ const bindEvents = (player, cover) => {
     bindEventNextSong(player)
     bindEventPreviousSong(player)
     bindEventCoverChange(player)
+    bindEventShowTime(player)
 
 }
 
