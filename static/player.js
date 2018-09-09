@@ -230,11 +230,9 @@ const seekProgress = (player) => {
     },1000)
 }
 const bindEventShowTime = function(player) {
-    // let totalTime = e('#id-totalTime-span')
     let seekbar = e('.hap-seekbar')
     let tooltip = e('.hap-tooltip')
     seekbar.addEventListener('mousemove', (event) => {
-        let self = event.target
         let seekX = Number(event.offsetX)
         let totalTime = player.duration
         if (!totalTime) {
@@ -248,7 +246,6 @@ const bindEventShowTime = function(player) {
         if (seconds < 10) {
             seconds = '0' + seconds
         }
-
         let totalMinutes = (totalTime / 60).toFixed(0)
         let totalSeconds = (totalTime % 60).toFixed(0)
         if (totalSeconds < 10) {
@@ -262,7 +259,7 @@ const bindEventShowTime = function(player) {
         }
     })
 
-    seekbar.addEventListener('mouseout', (event) => {
+    seekbar.addEventListener('mouseout', () => {
         tooltip.style.display = 'none'
     })
 
@@ -277,12 +274,21 @@ const bindEventShowTime = function(player) {
     })
 }
 
+const songTitle = (songname) => {
+    let title = e('#id-song-title')
+    title.innerHTML = songname
+}
 const bindEventCoverChange = (player) => {
     player.addEventListener('canplay', () => {
-        let songname = player.src
+        let song = player.src
         let cover = e('#id-audio-cover')
-        let covername = songname.split('.')[0] + '.jpg'
+        let covername = song.split('.')[0] + '.jpg'
         cover.src = covername
+        // songTitle(songname)
+        let father = e('.hap-active')
+        let child = father.querySelector('a')
+        let text = child.textContent.split('.')[0]
+        songTitle(text)
     })
 }
 const bindEventCanplay = function(player) {
@@ -320,8 +326,6 @@ const btnAnimation = () => {
             self.classList.remove('hap-icon-rollover-color')
         }
     })
-
-
 }
 const bindEvents = (player, cover) => {
     bindEventCurrentTime(player)
@@ -333,7 +337,7 @@ const bindEvents = (player, cover) => {
     bindEventPreviousSong(player)
     bindEventCoverChange(player)
     bindEventShowTime(player)
-
+    // bindEventSongTitle(player)
 }
 
 
