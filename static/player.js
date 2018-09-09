@@ -5,12 +5,23 @@ const log = console.log.bind(console)
 
 const e = (selector) => document.querySelector(selector)
 const es = (sel) => document.querySelectorAll(sel)
+const templatePlayerList = (song, img, i) => {
+    let imagBaseUrl = 'audios/'+img
+    let t = `
+                <div class="hap-playlist-item" data-index=${i}>
+                    <li class="gua-song hap-playlist-selected">
+                        <span class="hap-playlist-thumb"><img src=${imagBaseUrl} alt="">${img}</span>
+                        <a href="#" class="hap-playlist-title">${song}</a>
+                    </li>
+                    </div>
+                `
+    return t
+}
 const initPlayer = () => {
     let audioDir = 'audios'
     // readdir 读取文件夹并以函数的形式返回所有文件
     // 我们的音乐都放在 audios 文件夹中
     fs.readdir(audioDir, function(error, files) {
-        log(files, files.length)
             let items = files
             let o = {
                 song:[],
@@ -23,23 +34,10 @@ const initPlayer = () => {
                     o.img.push(file)
                 }
             }
-        let template = (song, img, i) => {
-            let imagBaseUrl = 'audios/'+img
-            let t = `
-                <div class="hap-playlist-item" data-index=${i}>
-                    <li class="gua-song hap-playlist-selected">
-                        <span class="hap-playlist-thumb"><img src=${imagBaseUrl} alt="">${img}</span>
-                        <a href="#" class="hap-playlist-title">${song}</a>
-                    </li>
-                    </div>
-                `
-            return t
-        }
-
         for (let i = 0; i < o.song.length; i++) {
             let song = o.song[i]
             let img = o.img[i]
-            let t = template(song, img, i)
+            let t = templatePlayerList(song, img, i)
             e('#id-ul-song-list').insertAdjacentHTML('beforeend', t)
         }
     })
@@ -63,8 +61,21 @@ const bindEventPlay = (event, player) => {
         }
 }
 
+const togglePlayPause = (t) => {
+    if (t.classList.contains('fa-play')) {
+        t.classList.remove('fa-play')
+        t.classList.add('fa-pause')
+    } else if (t.classList.contains('fa-pause')) {
+        t.classList.remove('fa-pause')
+        t.classList.add('fa-play')
+    }
+}
 const bindEventsPlay = (player) => {
+    let button = e('.hap-playback-toggle')
     let list = e('#id-ul-song-list')
+    player.addEventListener('canplay', () => {
+        togglePlayPause(button)
+    })
     list.addEventListener('click',  (event) => {
         bindEventPlay(event, player)
     })
@@ -80,15 +91,17 @@ const hapToggleClass = (element, classNameA, classNameB) => {
 
 const bindEventPause = (player) => {
     let button = e('.hap-playback-toggle')
+    player.addEventListener('pause', () => {
+        button.classList.remove('fa-pause')
+        button.classList.add('fa-play')
+    })
     button.addEventListener('click', (event) => {
         let self = event.target
         if (self.classList.contains('fa-play')) {
-            log('开始')
             self.classList.remove('fa-play')
             self.classList.add('fa-pause')
             player.play()
         } else {
-            log('暂停')
             self.classList.remove('fa-pause')
             self.classList.add('fa-play')
             player.pause()
@@ -218,16 +231,23 @@ const bindEventCurrentTime = function(player) {
 }
 
 const seekProgress = (player) => {
-    let time = a.duration
-    let totalMinutes = (time / 60).toFixed(0)
-    let totalSeconds = (time % 60).toFixed(0)
-    log('totalMinutes , totalSeconds',typeof totalMinutes ,totalSeconds )
-    setInterval(function() {
-        let current = a.currentTime
-        let minutes = (current / 60).toFixed(0)
-        let Seconds = (current % 60).toFixed(0)
-        totalTime.innerHTML = `${minutes}分${seconds}秒`
-    },1000)
+    let a = player
+    let o = {}
+    o.time = a.duration
+    o.totalMinutes = (o.time / 60).toFixed(0)
+    o.totalSeconds = (o.time % 60).toFixed(0)
+    o.current = a.currentTime
+    o.minutes = (o.current / 60).toFixed(0)
+    o.Seconds = (o.current % 60).toFixed(0)
+    return o
+}
+
+const secondFillZero = (second) => {
+    let t = second
+    if (t < 10) {
+        t = '0' + t
+    }
+    return t
 }
 const bindEventShowTime = function(player) {
     let seekbar = e('.hap-seekbar')
@@ -243,14 +263,10 @@ const bindEventShowTime = function(player) {
         let current = seekX / 280 * totalTime
         let minutes = (current / 60).toFixed(0)
         let seconds = (current % 60).toFixed(0)
-        if (seconds < 10) {
-            seconds = '0' + seconds
-        }
+        seconds = secondFillZero(seconds)
         let totalMinutes = (totalTime / 60).toFixed(0)
         let totalSeconds = (totalTime % 60).toFixed(0)
-        if (totalSeconds < 10) {
-            totalSeconds = '0' + totalSeconds
-        }
+        totalSeconds = secondFillZero(totalSeconds)
         tooltip.innerHTML = `<p>${minutes}:${seconds} / ${totalMinutes}:${totalSeconds} </p>`
         if (seekX < 250) {
             tooltip.style.left = event.offsetX + 'px'
@@ -284,7 +300,6 @@ const bindEventCoverChange = (player) => {
         let cover = e('#id-audio-cover')
         let covername = song.split('.')[0] + '.jpg'
         cover.src = covername
-        // songTitle(songname)
         let father = e('.hap-active')
         let child = father.querySelector('a')
         let text = child.textContent.split('.')[0]
@@ -345,9 +360,7 @@ const __main = () => {
     // 找到 audio 标签并赋值给 player
     const player = e('#id-audio-player')
     initPlayer(player)
-
     btnAnimation()
-
     bindEvents(player)
 }
 
