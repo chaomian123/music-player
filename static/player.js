@@ -56,13 +56,7 @@ const bindEventPlay = (event, player) => {
                 r.classList.remove('hap-active')
             }
             father.classList.add('hap-active')
-            let cover = e('#id-audio-cover')
-            let songname = self.textContent
-            let covername = songname.split('.')[0] + '.jpg'
             let filepath = path.join('audios', self.textContent)
-            // let coverpath = path.join('audios', covername)
-            // 设置为 player 的当前音乐
-            cover.src = 'audios/' + covername
             player.src = filepath
             // 播放
             player.play()
@@ -244,6 +238,14 @@ const bindEventTotalTime = function(player) {
     })
 }
 
+const bindEventCoverChange = (player) => {
+    player.addEventListener('canplay', () => {
+        let songname = player.src
+        let cover = e('#id-audio-cover')
+        let covername = songname.split('.')[0] + '.jpg'
+        cover.src = covername
+    })
+}
 const bindEventCanplay = function(player) {
     player.addEventListener('canplay', function() {
         let promise = player.play()
@@ -286,6 +288,7 @@ const bindEvents = (player, cover) => {
     bindEventPause(player)
     bindEventNextSong(player)
     bindEventPreviousSong(player)
+    bindEventCoverChange(player)
 
 }
 
