@@ -362,7 +362,7 @@ const scrollSongsList = () => {
         } else {
             top  = top + 10
         }
-        if (top < 0 && top > -200) {
+        if (top < 10 && top > -200) {
             list.style.top = top + 'px'
         }
     })
