@@ -247,7 +247,6 @@ const bindEventShowTime = function(player) {
         let seconds = (current % 60).toFixed(0)
         if (seconds < 10) {
             seconds = '0' + seconds
-            log('seconds',seconds)
         }
 
         let totalMinutes = (totalTime / 60).toFixed(0)
@@ -265,7 +264,16 @@ const bindEventShowTime = function(player) {
 
     seekbar.addEventListener('mouseout', (event) => {
         tooltip.style.display = 'none'
-        log('离开了')
+    })
+
+    seekbar.addEventListener('click', (event) => {
+        let seekX = Number(event.offsetX)
+        let totalTime = player.duration
+        if (!totalTime) {
+            return
+        }
+        let time = seekX / 280 * totalTime
+        player.currentTime = time
     })
 }
 
