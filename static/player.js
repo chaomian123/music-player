@@ -341,10 +341,35 @@ const btnAnimation = () => {
             self.classList.remove('hap-icon-rollover-color')
         }
     })
+    scrollSongsList()
+
 }
-const bindEvents = (player, cover) => {
+
+
+const scrollSongsList = () => {
+    const list = e('#id-ul-song-list')
+    list.addEventListener('mousewheel', (event) => {
+        let top = window.getComputedStyle(list, null).getPropertyValue("top")
+        top = Number(top.split('p')[0])
+        let down = true
+        if (event.wheelDelta < 0) {
+            down = true
+        } else if (event.wheelDelta > 0) {
+            down = false
+        }
+        if (down) {
+            top  = top - 10
+        } else {
+            top  = top + 10
+        }
+        if (top < 0 && top > -200) {
+            list.style.top = top + 'px'
+        }
+    })
+}
+const bindEvents = (player) => {
     bindEventCurrentTime(player)
-    bindEventsPlay(player, cover)
+    bindEventsPlay(player)
     bindEventShuffle(player)
     bindEventEnded(player)
     bindEventPause(player)
@@ -352,7 +377,6 @@ const bindEvents = (player, cover) => {
     bindEventPreviousSong(player)
     bindEventCoverChange(player)
     bindEventShowTime(player)
-    // bindEventSongTitle(player)
 }
 
 
