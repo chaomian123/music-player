@@ -80,12 +80,18 @@ const bindEventsPlay = (player) => {
 const bindEventPause = (player) => {
     let button = e('.hap-playback-toggle')
     button.addEventListener('click', (event) => {
-        log('暂停')
         let self = event.target
-        log(self)
-        player.pause()
-        self.classList.remove('fa-pause')
-        self.classList.add('fa-play')
+        if (self.classList.contains('fa-play')) {
+            log('开始')
+            self.classList.remove('fa-play')
+            self.classList.add('fa-pause')
+            player.play()
+        } else {
+            log('暂停')
+            self.classList.remove('fa-pause')
+            self.classList.add('fa-play')
+            player.pause()
+        }
     })
 }
 
@@ -152,7 +158,7 @@ const bindEventEnded = (player) => {
         } else if (playMode === 'shuffle') {
             let randomsong = randomSong()
             log('mode', playMode)
-            player.src = path.join('audios', randomsong)
+            player.src = randomsong
             player.play()
         }
     })
