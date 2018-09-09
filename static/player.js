@@ -67,14 +67,25 @@ const bindEventPlay = (event, player) => {
             // 播放
             player.play()
         }
-
-
 }
+const changeCover = (player) => {
+    let songname = player.src
+    log(songname)
+}
+
 const bindEventsPlay = (player) => {
     let list = e('#id-ul-song-list')
     list.addEventListener('click',  (event) => {
         bindEventPlay(event, player)
     })
+}
+
+const hapToggleClass = (element, classNameA, classNameB) => {
+    if (element.classList.contains(classNameA)) {
+        element.classList.remove(classNameA)
+        element.classList.remove(classNameB)
+
+    }
 }
 
 const bindEventPause = (player) => {
@@ -95,6 +106,22 @@ const bindEventPause = (player) => {
     })
 }
 
+// class MusicPlayer {
+//     constructor() {
+//         this.index = 0
+//         this.songs = [
+//             '1.mp3',
+//             '2.mp3',
+//             '3.mp3',
+//         ]
+//     }
+//     nextSong() {
+//         let songs = this.songs
+//         this.index = (index + 1) % songs.length
+//         return songs[this.index]
+//     }
+// }
+
 const allSongs = () => {
     let musics = es('.hap-playlist-title')
     log(musics)
@@ -104,12 +131,23 @@ const allSongs = () => {
         let path = `audios\\`+ m.textContent
         songs.push(path)
     }
-    log('songs',songs)
     return songs
 }
 
-const nextSong = () => {
 
+
+const nextSong = () => {
+    let songs = allSongs()
+    let currentSong = e('.hap-active')
+    let index = (currentSong.dataset.index + 1) % songs.length
+    return songs[index]
+}
+
+const previousSong = () => {
+    let songs = allSongs()
+    let currentSong = e('.hap-active')
+    let index = (currentSong.dataset.index - 1) % songs.length
+    return songs[index]
 }
 
 const choice = (array) => {
@@ -124,6 +162,24 @@ const randomSong = () => {
     let songs = allSongs()
     let s = choice(songs)
     return s
+}
+
+
+const bindEventNextSong = (player) => {
+    let next = e('.fa-step-forward')
+    next.addEventListener('click', (event) => {
+        let song = nextSong()
+        player.src = song
+        player.play()
+    })
+}
+const bindEventPreviousSong = (player) => {
+    let next = e('.fa-step-backward')
+    next.addEventListener('click', (event) => {
+        let song = previousSong()
+        player.src = song
+        player.play()
+    })
 }
 
 const bindEventShuffle = () => {
@@ -234,6 +290,8 @@ const bindEvents = (player, cover) => {
     bindEventShuffle(player)
     bindEventEnded(player)
     bindEventPause(player)
+    bindEventNextSong(player)
+    bindEventPreviousSong(player)
 }
 
 
