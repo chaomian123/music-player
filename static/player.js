@@ -106,22 +106,6 @@ const bindEventPause = (player) => {
     })
 }
 
-// class MusicPlayer {
-//     constructor() {
-//         this.index = 0
-//         this.songs = [
-//             '1.mp3',
-//             '2.mp3',
-//             '3.mp3',
-//         ]
-//     }
-//     nextSong() {
-//         let songs = this.songs
-//         this.index = (index + 1) % songs.length
-//         return songs[this.index]
-//     }
-// }
-
 const allSongs = () => {
     let musics = es('.hap-playlist-title')
     log(musics)
@@ -135,18 +119,16 @@ const allSongs = () => {
 }
 
 
-
-const nextSong = () => {
-    let songs = allSongs()
+const nextSong = (songs) => {
     let currentSong = e('.hap-active')
-    let index = (currentSong.dataset.index + 1) % songs.length
+    let index = (Number(currentSong.dataset.index) + 1) % songs.length
     return songs[index]
 }
 
-const previousSong = () => {
-    let songs = allSongs()
+const previousSong = (songs) => {
     let currentSong = e('.hap-active')
-    let index = (currentSong.dataset.index - 1) % songs.length
+    let index = (Number(currentSong.dataset.index) - 1 + songs.length) % songs.length
+    log(index)
     return songs[index]
 }
 
@@ -168,7 +150,13 @@ const randomSong = () => {
 const bindEventNextSong = (player) => {
     let next = e('.fa-step-forward')
     next.addEventListener('click', (event) => {
-        let song = nextSong()
+        let songs = allSongs()
+        let song = nextSong(songs)
+        let currentSong = e('.hap-active')
+        let i = (Number(currentSong.dataset.index) + 1) % songs.length
+        let next = es('.hap-playlist-item')[i]
+        currentSong.classList.remove('hap-active')
+        next.classList.add('hap-active')
         player.src = song
         player.play()
     })
@@ -176,7 +164,13 @@ const bindEventNextSong = (player) => {
 const bindEventPreviousSong = (player) => {
     let next = e('.fa-step-backward')
     next.addEventListener('click', (event) => {
-        let song = previousSong()
+        let songs = allSongs()
+        let song = previousSong(songs)
+        let currentSong = e('.hap-active')
+        let i = (Number(currentSong.dataset.index) - 1 + songs.length) % songs.length
+        let next = es('.hap-playlist-item')[i]
+        currentSong.classList.remove('hap-active')
+        next.classList.add('hap-active')
         player.src = song
         player.play()
     })
@@ -292,6 +286,7 @@ const bindEvents = (player, cover) => {
     bindEventPause(player)
     bindEventNextSong(player)
     bindEventPreviousSong(player)
+
 }
 
 
