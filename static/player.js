@@ -1,8 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 
-
-
 const log = console.log.bind(console)
 
 const e = (selector) => document.querySelector(selector)
@@ -52,62 +50,33 @@ const bindEventPlay = (event, player) => {
         // self 是被点击的 a 标签
         let self = event.target
         if (self.classList.contains('hap-playlist-title')) {
-            log(self)
             let father = self.closest('.hap-playlist-item')
-            log(father)
             let allItems = document.querySelectorAll('.hap-active')
             for (let r of allItems) {
                 r.classList.remove('hap-active')
             }
             father.classList.add('hap-active')
-
-            let cover = e('.hap-player-thumb-wrapper')
+            let cover = e('#id-audio-cover')
             let songname = self.textContent
             let covername = songname.split('.')[0] + '.jpg'
             let filepath = path.join('audios', self.textContent)
-            log(filepath)
-            let coverpath = path.join('audios', covername)
-            log(coverpath)
-
+            // let coverpath = path.join('audios', covername)
             // 设置为 player 的当前音乐
-            cover.src = coverpath
+            cover.src = 'audios/' + covername
             player.src = filepath
             // 播放
             player.play()
         }
 
 
-
 }
 const bindEventsPlay = (player) => {
-    // 给 id 为 id-ul-song-list 的元素下的 a 标签添加一个点击事件
-    // 这是 jQuery 的事件委托语法
-    // 如果 on 函数有三个参数, 那么第一个参数是 事件类型, 第二个参数是响应事件的元素
-    // 第三个参数是事件发生后的回调函数
     let list = e('#id-ul-song-list')
     list.addEventListener('click',  (event) => {
-
         bindEventPlay(event, player)
     })
 }
-const changeCover = (index) => {
-    const cover = e('#id-audio-cover')
 
-    let audioDir = 'audios'
-    let coverPic
-    fs.readdir(audioDir, function(error, files) {
-        let i = 0
-        for (let file of files) {
-            if (i === index) {
-                coverPic = file.endsWith('jpg')
-                break
-            }
-            i++
-        }
-        log(coverPic)
-        cover.src = coverPic
-    })
-}
 const bindEventPause = (player) => {
     let button = e('.hap-playback-toggle')
     button.addEventListener('click', (event) => {
@@ -120,19 +89,74 @@ const bindEventPause = (player) => {
     })
 }
 
+const allSongs = () => {
+    let musics = es('.hap-playlist-title')
+    log(musics)
+    let songs = []
+    for (let i = 0; i < musics.length; i++) {
+        let m = musics[i]
+        let path = `audios\\`+ m.textContent
+        songs.push(path)
+    }
+    log('songs',songs)
+    return songs
+}
+
+const nextSong = () => {
+
+}
+
+const choice = (array) => {
+    let a = Math.random()
+    a = a * array.length
+    let index = Math.floor(a)
+    log('index', index)
+    return array[index]
+}
+
+const randomSong = () => {
+    let songs = allSongs()
+    let s = choice(songs)
+    return s
+}
+
+const bindEventShuffle = () => {
+    let randombtn = e('.fa-random')
+    randombtn.addEventListener('click', (event) => {
+        let player = e('#id-audio-player')
+        let self = randombtn
+
+        if (player.dataset.mode !== 'shuffle') {
+            self.classList.add('hap-icon-rollover-color')
+            self.classList.remove('hap-icon-color')
+            player.dataset.mode = 'shuffle'
+        } else {
+            self.classList.add('hap-icon-color')
+            self.classList.remove('hap-icon-rollover-color')
+            player.dataset.mode = 'loop'
+        }
+    })
+}
+
 const bindEventEnded = (player) => {
     // 给 id 为 id-audio-player 的元素也就是我们的 audio 标签添加一个事件 ended
     // 这样在音乐播放完之后就会调用第二个参数(一个匿名函数)
     let playMode = player.dataset.mode
-    $("#id-audio-player").on('ended', function() {
+    e('#id-audio-player').addEventListener('ended', () => {
         log("播放结束, 当前播放模式是", playMode)
         // 如果播放模式是 loop 就重新播放
         if (playMode === 'loop') {
             player.play()
-        } else {
+        } else if (playMode === 'list') {
             log('mode', playMode)
+        } else if (playMode === 'shuffle') {
+            let randomsong = randomSong()
+            log('mode', playMode)
+            player.src = path.join('audios', randomsong)
+            player.play()
         }
     })
+
 }
 const bindEventCurrentTime = function(player) {
     let a = player
@@ -164,11 +188,27 @@ const bindEventTotalTime = function(player) {
     })
 }
 
+const bindEventCanplay = function(player) {
+    player.addEventListener('canplay', function() {
+        let promise = player.play()
+        if (promise !== undefined) {
+            promise.then(() => {
+                // 进入这个函数说明音乐已经自动播放
+                player.play()
+            }).catch(() => {
+                // 进入这个函数说明音乐不能自动播放
+                showCurrentTime(audio)
+            })
+        }
+    })
+}
+
+
 const btnAnimation = () => {
     let container = e('#hap-wrapper')
     container.addEventListener('mouseover', (event) => {
         let self = event.target
-        if (self.classList.contains('hap-icon-color')) {
+        if (self.classList.contains('hap-icon-color') && !self.classList.contains('fa-random')) {
             self.classList.add('hap-icon-rollover-color')
             self.classList.remove('hap-icon-color')
         }
@@ -176,7 +216,7 @@ const btnAnimation = () => {
 
     container.addEventListener('mouseout', (event) => {
         let self = event.target
-        if (self.classList.contains('hap-icon-rollover-color')) {
+        if (self.classList.contains('hap-icon-rollover-color') && !self.classList.contains('fa-random')) {
             self.classList.add('hap-icon-color')
             self.classList.remove('hap-icon-rollover-color')
         }
@@ -185,6 +225,7 @@ const btnAnimation = () => {
 const bindEvents = (player, cover) => {
     bindEventCurrentTime(player)
     bindEventsPlay(player, cover)
+    bindEventShuffle(player)
     bindEventEnded(player)
     bindEventPause(player)
 }
