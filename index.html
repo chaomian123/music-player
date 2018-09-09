@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 注意 electron 不是网页 所以有的东西和网页不一样 -->
+    <meta charset="UTF-8">
+    <!-- title 是软件的标题 -->
+    <title>Music Player</title>
+    <link rel="stylesheet" href="static/css/awesome.css">
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            text-decoration: none;
+        }
+        li {
+            list-style-type: none;
+        }
+        #hap-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+            max-width: 320px;
+            max-height: 520px;
+            min-height: 520px;
+            margin: 50px auto;
+            -moz-box-shadow: 1px 1px 15px #333;
+            -webkit-box-shadow: 1px 1px 15px #333;
+            box-shadow: 1px 1px 15px #333;}
+        .hap-player-holder {
+             position: relative;
+             left: 0;
+             top: 0;
+             min-height: 250px;
+             height: calc(100% - 270px);
+             overflow: hidden;}
+        .hap-playlist-holder {
+             position: relative;
+             left: 0;
+             width: 100%;
+             height: 300px;
+             background: #333;
+             overflow: hidden;
+         }
+        .hap-player-thumb-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .hap-volume-wrapper {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            top: 10px;
+            right: 20px;
+        }
+        .hap-random-toggle {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+        }
+        .hap-contr-btn i {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            display: inline-block;
+            font-size: 16px!important;
+            line-height: 30px!important;
+        }
+        .hap-icon-color {
+            color: #eee !important;
+            -webkit-transition: color 0.3s ease-in-out;
+            transition: color 0.3s ease-in-out;
+        }
+        .fa, .fas {
+            font-weight: 900;
+        }
+        .hap-player-content {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+        #id-audio-player {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+        .hap-info {
+            position: relative;
+            margin: 25px 20px 5px 20px;
+            pointer-events: none;
+        }
+        .hap-seekbar {
+            position: relative;
+            margin-left: 20px;
+            margin-right: 20px;
+            height: 20px;
+            cursor: pointer;
+            touch-action: none;
+        }
+        .hap-player-controls {
+            position: relative;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            width: 210px;
+            height: 30px;
+            left: 50%;
+            -webkit-transform: translate(-50%, 0);
+            -ms-transform: translate(-50%, 0);
+            transform: translate(-50%, 0);
+        }
+        .hap-playlist-item {
+            position: relative;
+            top: 0px;
+            left: 0px;
+            overflow: hidden;
+            height: 60px;
+            background: #333;
+            border-bottom: 1px solid #444;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+        .hap-playlist-item.hap-active {
+            background: #ff2a67!important;
+        }
+        .hap-playlist-thumb {
+            display: block;
+            position: relative;
+            top: 0px;
+            left: 0px;
+            margin: 7px 7px 7px 20px;
+            width: 60px;
+            height: 46px;
+            float: left;
+            background: #111;
+            overflow: hidden;
+        }
+        .hap-playlist-title-num, .hap-playlist-title {
+            position: relative;
+            vertical-align: middle;
+            font-size: 14px;
+            color: inherit;
+            display: block;
+            top: 50%;
+            -webkit-transform: translate(0, -50%);
+            -ms-transform: translate(0, -50%);
+        }
+        .hap-playlist-selected {
+            float: left;
+            color: #fff;
+            height: 100%;
+            text-decoration: none;
+            width: calc(100% - 60px);}
+        .hap-playlist-non-selected {
+            float: left;
+            color: #fff;
+            height: 100%;
+            text-decoration: none;
+            width: calc(100% - 60px);
+        }
+
+        .hap-player-thumb-cover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(70,70,70,0.8);
+        }
+        .hap-player-thumb {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .hap-player-thumb img {
+            display: block;
+            height: 100%;
+            width: auto!important;
+            min-width: 320px;
+            margin: 0 auto;
+        }
+        .hap-progress-bg {
+            position: absolute;
+            background-color: rgba(150, 150, 150, 0.5);
+            width: 100%;
+            top: 10px;
+            height: 1px;
+        }
+        .fa, .far, .fas {
+            font-family: Font Awesome\ 5 Free;
+        }
+        .hap-load-level {
+            position: absolute;
+            background-color: rgba(150, 150, 150, 0.5);
+            top: 10px;
+            height: 1px;
+        }
+        .hap-progress-level {
+            position: absolute;
+            background: #f03a6d;
+            top: 10px;
+            height: 1px;
+            width: 0px;
+        }
+        .hap-volume-seekbar {
+            position: absolute;
+            top: 0px;
+            right: 30px;
+            width: 90px;
+            height: 30px;
+            cursor: pointer;
+            touch-action: none;
+        }
+        .hap-volume-bg {
+            position: absolute;
+            top: 14px;
+            left: 10px;
+            width: 70px;
+            height: 1px;
+            background-color: rgba(150, 150, 150, 0.5);
+        }
+        .hap-volume-level {
+            position: absolute;
+            top: 14px;
+            left: 10px;
+            width: 0px;
+            height: 1px;
+            background: #fff;
+        }
+        .hap-volume-drag {
+            position: relative;
+            top: -9px;
+            width: 18px;
+            height: 18px;
+            border-radius: 100%;
+            background: #fff;
+            /* pointer-events: none; */
+            -webkit-transform: scale( 0.5 );
+            transform: scale( 0.5 );
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            -webkit-transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+            float: right;
+            margin-right: -9px;
+        }
+        .hap-prev-toggle {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            left: 0px;
+        }
+        .hap-contr-btn i {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            display: inline-block;
+            font-size: 16px!important;
+            line-height: 30px!important;
+        }
+        .fa-step-backward:before {
+            content: "\f048";
+        }
+        .fa-pause:before {
+            content: "\f04c";
+        }
+        .fa-step-forward:before {
+            content: "\f051";
+        }
+        .hap-icon-color {
+            color: #eee !important;
+            -webkit-transition: color 0.3s ease-in-out;
+            transition: color 0.3s ease-in-out;}
+        .hap-playback-toggle {
+            position: absolute;
+            top: 0px;
+            width: 30px;
+            height: 30px;
+            left: 50%;
+            -webkit-transform: translate(-50%, 0);
+            -ms-transform: translate(-50%, 0);
+            transform: translate(-50%, 0);
+        }
+        .hap-contr-btn i {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            display: inline-block;
+            font-size: 16px!important;
+            line-height: 30px!important;
+        }
+        .hap-next-toggle {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            right: 0px;
+        }
+        .hap-icon-rollover-color{
+            color:#ff2a67 !important;
+            -webkit-transition: color 0.3s ease-in-out;
+            transition: color 0.3s ease-in-out;
+        }
+        .hap-playlist-thumb img {
+            width:100%;
+        }
+        body {
+            background: #c1b9b9;
+        }
+        .hap-bottom-bar {
+            position: absolute;
+            bottom: 0px;
+            left: 0;
+            height: 30px;
+            width: 100%;
+            overflow: hidden;
+            background: #222;
+        }
+        .hap-search-filter {
+            position: relative;
+            width: 100px!important;
+            height: 18px!important;
+            padding: 0!important;
+            top: 50%;
+            margin: -9px 0 0 20px!important;
+            border: 0!important;
+            -moz-border-radius: 0 !important;
+            -webkit-border-radius: 0 !important;
+            border-radius: 0 !important;
+            background: #222 !important;
+            border: 1px solid #333!important;
+            color: #ccc !important;
+            box-shadow: none!important;
+            line-height: 1!important;
+            float: left;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;}
+        .hap-sort-alpha {
+            position: relative;
+            left: 5px;
+            top: 0;
+            width: 25px;
+            height: 100%;
+            text-align: center;
+            float: left;
+        }
+        .hap-sort-alpha i {
+            display: inline-block;
+            font-size: 18px!important;
+            line-height: 30px!important;
+        }
+        #id-ul-song-list {
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="hap-wrapper">
+        <div class="hap-player-holder">
+            <div class="hap-player-thumb-wrapper">
+                <div class="hap-player-thumb" >
+                    <img src="" alt="" id="id-audio-cover">
+                </div>
+                <div class="hap-player-thumb-cover"></div>
+            </div>
+            <div class="hap-volume-wrapper">
+                <div class="hap-volume-toggle hap-contr-btn"><i class="fas fa-volume-up hap-icon-color"></i></div>
+                <div class="hap-volume-seekbar">
+                    <div class="hap-volume-bg"></div>
+                    <div class="hap-volume-level"><div class="hap-volume-drag"></div></div>
+                </div>
+
+            </div>
+            <div class="hap-random-toggle hap-contr-btn" data-tooltip="Shuffle">
+                <i class="fas fa-random hap-icon-color"></i>
+            </div>
+
+            <div class="hap-player-content">
+                <div class="hap-info"></div>
+                <div class="hap-seekbar">
+                    <div class="hap-progress-bg"></div>
+                    <div class="hap-load-level"></div>
+                    <div class="hap-progress-level"></div>
+
+                </div>
+                <div class="hap-player-controls">
+                    <div class="hap-prev-toggle hap-contr-btn"><i class="fas fa-step-backward hap-icon-color"></i></div>
+                    <div class="hap-playback-toggle hap-contr-btn"><i class="fas fa-pause hap-icon-color"></i></div>
+                    <div class="hap-next-toggle hap-contr-btn"><i class="fas fa-step-forward hap-icon-color"></i></div>
+
+                </div>
+            </div>
+            <audio id='id-audio-player'  data-mode="loop"></audio>
+
+        </div>
+        <div class="hap-playlist-holder">
+            <ul id='id-ul-song-list'></ul>
+
+            <div id="overlayscrollbar"></div>
+            <!--<div class="hap-bottom-bar">-->
+                <!--&lt;!&ndash;<input class="hap-search-filter" type="text" value="">&ndash;&gt;-->
+                <!--<div class="hap-sort-alpha" data-tooltip="Alphabetic sort"></div>-->
+            <!--</div>-->
+
+        </div>
+    </div>
+    <!-- ul 是用来放播放列表的 -->
+
+</body>
+<script>
+
+    window.nodeRequire = require
+
+    delete window.exports
+    delete window.module
+</script>
+<script src="static/player.js"></script>
+</html>
