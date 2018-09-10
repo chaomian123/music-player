@@ -5,6 +5,13 @@ const log = console.log.bind(console)
 
 const e = (selector) => document.querySelector(selector)
 const es = (sel) => document.querySelectorAll(sel)
+const secondFillZero = (second) => {
+    let t = second
+    if (t < 10) {
+        t = '0' + t
+    }
+    return t
+}
 const templatePlayerList = (song, img, i) => {
     let imagBaseUrl = 'audios/'+img
     let t = `
@@ -16,6 +23,120 @@ const templatePlayerList = (song, img, i) => {
                     </div>
                 `
     return t
+}
+const initVolumeBar = (player) => {
+    let volume = e('.hap-volume-level')
+    volume.style.width = player.volume * 70 + 'px'
+}
+const nextSong = (songs) => {
+    let currentSong = e('.hap-active')
+    let index = (Number(currentSong.dataset.index) + 1) % songs.length
+    return songs[index]
+}
+const previousSong = (songs) => {
+    let currentSong = e('.hap-active')
+    let index = (Number(currentSong.dataset.index) - 1 + songs.length) % songs.length
+    log(index)
+    return songs[index]
+}
+const allSongs = () => {
+    let musics = es('.hap-playlist-title')
+    log(musics)
+    let songs = []
+    for (let i = 0; i < musics.length; i++) {
+        let m = musics[i]
+        let path = `audios\\`+ m.textContent
+        songs.push(path)
+    }
+    return songs
+}
+const choice = (array) => {
+    let a = Math.random()
+    a = a * array.length
+    let index = Math.floor(a)
+    return array[index]
+}
+const randomSong = (songs) => {
+    let s = choice(songs)
+    return s
+}
+const updateBar = (x, player) => {
+    let volumeLevel = e('.hap-volume-level')
+    volumeLevel.style.width = x / 90 * 70 + 'px'
+    player.volume = x / 90
+}
+const songTitle = (songname) => {
+    let title = e('#id-song-title')
+    title.innerHTML = songname
+}
+const scrollSongsList = () => {
+    const list = e('#id-ul-song-list')
+    list.addEventListener('mousewheel', (event) => {
+        let top = window.getComputedStyle(list, null).getPropertyValue("top")
+        top = Number(top.split('p')[0])
+        let down = true
+        if (event.wheelDelta < 0) {
+            down = true
+        } else if (event.wheelDelta > 0) {
+            down = false
+        }
+        if (down) {
+            top  = top - 10
+        } else {
+            top  = top + 10
+        }
+        if (top < 10 && top > -200) {
+            list.style.top = top + 'px'
+        }
+    })
+}
+const togglePlayPause = (t) => {
+    if (t.classList.contains('fa-play')) {
+        t.classList.remove('fa-play')
+        t.classList.add('fa-pause')
+    } else if (t.classList.contains('fa-pause')) {
+        t.classList.remove('fa-pause')
+        t.classList.add('fa-play')
+    }
+}
+const hapToggleClass = (element, classNameA, classNameB) => {
+    if (element.classList.contains(classNameA)) {
+        element.classList.remove(classNameA)
+        element.classList.remove(classNameB)
+
+    }
+}
+const seekProgress = (player) => {
+    let a = player
+    let o = {}
+    o.time = a.duration
+    o.totalMinutes = (o.time / 60).toFixed(0)
+    o.totalSeconds = (o.time % 60).toFixed(0)
+    o.current = a.currentTime
+    o.minutes = (o.current / 60).toFixed(0)
+    o.Seconds = (o.current % 60).toFixed(0)
+    return o
+}
+
+const btnAnimation = () => {
+    let container = e('#hap-wrapper')
+    container.addEventListener('mouseover', (event) => {
+        let self = event.target
+        if (self.classList.contains('hap-icon-color') && !self.classList.contains('fa-random')) {
+            self.classList.add('hap-icon-rollover-color')
+            self.classList.remove('hap-icon-color')
+        }
+    })
+
+    container.addEventListener('mouseout', (event) => {
+        let self = event.target
+        if (self.classList.contains('hap-icon-rollover-color') && !self.classList.contains('fa-random')) {
+            self.classList.add('hap-icon-color')
+            self.classList.remove('hap-icon-rollover-color')
+        }
+    })
+    scrollSongsList()
+
 }
 const initPlayer = () => {
     let audioDir = 'audios'
@@ -41,9 +162,8 @@ const initPlayer = () => {
             e('#id-ul-song-list').insertAdjacentHTML('beforeend', t)
         }
     })
+
 }
-
-
 const bindEventPlay = (event, player) => {
         // self 是被点击的 a 标签
         let self = event.target
@@ -60,19 +180,10 @@ const bindEventPlay = (event, player) => {
             player.play()
         }
 }
-
-const togglePlayPause = (t) => {
-    if (t.classList.contains('fa-play')) {
-        t.classList.remove('fa-play')
-        t.classList.add('fa-pause')
-    } else if (t.classList.contains('fa-pause')) {
-        t.classList.remove('fa-pause')
-        t.classList.add('fa-play')
-    }
-}
 const bindEventsPlay = (player) => {
     let button = e('.hap-playback-toggle')
     let list = e('#id-ul-song-list')
+    initVolumeBar(player)
     player.addEventListener('canplay', () => {
         togglePlayPause(button)
     })
@@ -80,15 +191,6 @@ const bindEventsPlay = (player) => {
         bindEventPlay(event, player)
     })
 }
-
-const hapToggleClass = (element, classNameA, classNameB) => {
-    if (element.classList.contains(classNameA)) {
-        element.classList.remove(classNameA)
-        element.classList.remove(classNameB)
-
-    }
-}
-
 const bindEventPause = (player) => {
     let button = e('.hap-playback-toggle')
     player.addEventListener('pause', () => {
@@ -108,48 +210,6 @@ const bindEventPause = (player) => {
         }
     })
 }
-
-const allSongs = () => {
-    let musics = es('.hap-playlist-title')
-    log(musics)
-    let songs = []
-    for (let i = 0; i < musics.length; i++) {
-        let m = musics[i]
-        let path = `audios\\`+ m.textContent
-        songs.push(path)
-    }
-    return songs
-}
-
-
-const nextSong = (songs) => {
-    let currentSong = e('.hap-active')
-    let index = (Number(currentSong.dataset.index) + 1) % songs.length
-    return songs[index]
-}
-
-const previousSong = (songs) => {
-    let currentSong = e('.hap-active')
-    let index = (Number(currentSong.dataset.index) - 1 + songs.length) % songs.length
-    log(index)
-    return songs[index]
-}
-
-const choice = (array) => {
-    let a = Math.random()
-    a = a * array.length
-    let index = Math.floor(a)
-    log('index', index)
-    return array[index]
-}
-
-const randomSong = () => {
-    let songs = allSongs()
-    let s = choice(songs)
-    return s
-}
-
-
 const bindEventNextSong = (player) => {
     let next = e('.fa-step-forward')
     next.addEventListener('click', (event) => {
@@ -160,6 +220,11 @@ const bindEventNextSong = (player) => {
         let next = es('.hap-playlist-item')[i]
         currentSong.classList.remove('hap-active')
         next.classList.add('hap-active')
+        // if (player.dataset.mode !== 'shuffle') {
+        //     player.src = song
+        // } else {
+        //     player.src = randomSong(songs)
+        // }
         player.src = song
         player.play()
     })
@@ -174,15 +239,18 @@ const bindEventPreviousSong = (player) => {
         let next = es('.hap-playlist-item')[i]
         currentSong.classList.remove('hap-active')
         next.classList.add('hap-active')
+        // if (player.dataset.mode !== 'shuffle') {
+        //     player.src = song
+        // } else {
+        //     player.src = randomSong(songs)
+        // }
         player.src = song
         player.play()
     })
 }
-
-const bindEventShuffle = () => {
+const bindEventShuffle = (player) => {
     let randombtn = e('.fa-random')
     randombtn.addEventListener('click', (event) => {
-        let player = e('#id-audio-player')
         let self = randombtn
 
         if (player.dataset.mode !== 'shuffle') {
@@ -196,22 +264,30 @@ const bindEventShuffle = () => {
         }
     })
 }
+const bindEventVolumeControl = (player) => {
+    let volumeDrag = false
+    let bar = e('.hap-volume-seekbar')
+    bar.addEventListener('click', (event) => {
+        volumeDrag = true
+        updateBar(event.offsetX, player)
 
+    })
+}
 const bindEventEnded = (player) => {
-    // 给 id 为 id-audio-player 的元素也就是我们的 audio 标签添加一个事件 ended
-    // 这样在音乐播放完之后就会调用第二个参数(一个匿名函数)
-    let playMode = player.dataset.mode
+
     e('#id-audio-player').addEventListener('ended', () => {
+        let playMode = player.dataset.mode
+        let songs = allSongs()
         log("播放结束, 当前播放模式是", playMode)
         // 如果播放模式是 loop 就重新播放
         if (playMode === 'loop') {
             player.play()
         } else if (playMode === 'list') {
-            log('mode', playMode)
+            player.src = nextSong(songs)
+            player.play()
         } else if (playMode === 'shuffle') {
-            let randomsong = randomSong()
             log('mode', playMode)
-            player.src = randomsong
+            player.src = randomSong(songs)
             player.play()
         }
     })
@@ -228,26 +304,6 @@ const bindEventCurrentTime = function(player) {
             currentTime.style.width= `${progress}px`
         },1000)
     })
-}
-
-const seekProgress = (player) => {
-    let a = player
-    let o = {}
-    o.time = a.duration
-    o.totalMinutes = (o.time / 60).toFixed(0)
-    o.totalSeconds = (o.time % 60).toFixed(0)
-    o.current = a.currentTime
-    o.minutes = (o.current / 60).toFixed(0)
-    o.Seconds = (o.current % 60).toFixed(0)
-    return o
-}
-
-const secondFillZero = (second) => {
-    let t = second
-    if (t < 10) {
-        t = '0' + t
-    }
-    return t
 }
 const bindEventShowTime = function(player) {
     let seekbar = e('.hap-seekbar')
@@ -289,11 +345,6 @@ const bindEventShowTime = function(player) {
         player.currentTime = time
     })
 }
-
-const songTitle = (songname) => {
-    let title = e('#id-song-title')
-    title.innerHTML = songname
-}
 const bindEventCoverChange = (player) => {
     player.addEventListener('canplay', () => {
         let song = player.src
@@ -306,67 +357,6 @@ const bindEventCoverChange = (player) => {
         songTitle(text)
     })
 }
-const bindEventCanplay = function(player) {
-    player.addEventListener('canplay', function() {
-        let promise = player.play()
-        if (promise !== undefined) {
-            promise.then(() => {
-                // 进入这个函数说明音乐已经自动播放
-                player.play()
-            }).catch(() => {
-                // 进入这个函数说明音乐不能自动播放
-                showCurrentTime(audio)
-            })
-        }
-    })
-}
-
-const BindEventLoadLevel = (player) => {
-
-}
-const btnAnimation = () => {
-    let container = e('#hap-wrapper')
-    container.addEventListener('mouseover', (event) => {
-        let self = event.target
-        if (self.classList.contains('hap-icon-color') && !self.classList.contains('fa-random')) {
-            self.classList.add('hap-icon-rollover-color')
-            self.classList.remove('hap-icon-color')
-        }
-    })
-
-    container.addEventListener('mouseout', (event) => {
-        let self = event.target
-        if (self.classList.contains('hap-icon-rollover-color') && !self.classList.contains('fa-random')) {
-            self.classList.add('hap-icon-color')
-            self.classList.remove('hap-icon-rollover-color')
-        }
-    })
-    scrollSongsList()
-
-}
-
-
-const scrollSongsList = () => {
-    const list = e('#id-ul-song-list')
-    list.addEventListener('mousewheel', (event) => {
-        let top = window.getComputedStyle(list, null).getPropertyValue("top")
-        top = Number(top.split('p')[0])
-        let down = true
-        if (event.wheelDelta < 0) {
-            down = true
-        } else if (event.wheelDelta > 0) {
-            down = false
-        }
-        if (down) {
-            top  = top - 10
-        } else {
-            top  = top + 10
-        }
-        if (top < 10 && top > -200) {
-            list.style.top = top + 'px'
-        }
-    })
-}
 const bindEvents = (player) => {
     bindEventCurrentTime(player)
     bindEventsPlay(player)
@@ -377,8 +367,8 @@ const bindEvents = (player) => {
     bindEventPreviousSong(player)
     bindEventCoverChange(player)
     bindEventShowTime(player)
+    bindEventVolumeControl(player)
 }
-
 
 const __main = () => {
     // 找到 audio 标签并赋值给 player

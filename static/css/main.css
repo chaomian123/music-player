@@ -190,9 +190,7 @@ li {
     top: 10px;
     height: 1px;
 }
-.fa, .far, .fas {
-    font-family: Font Awesome\ 5 Free;
-}
+
 .hap-load-level {
     position: absolute;
     background-color: rgba(150, 150, 150, 0.5);
@@ -266,15 +264,7 @@ li {
     font-size: 16px!important;
     line-height: 30px!important;
 }
-.fa-step-backward:before {
-    content: "\f048";
-}
-.fa-pause:before {
-    content: "\f04c";
-}
-.fa-step-forward:before {
-    content: "\f051";
-}
+
 .hap-icon-color {
     color: #eee !important;
     -webkit-transition: color 0.3s ease-in-out;
