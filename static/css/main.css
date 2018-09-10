@@ -315,7 +315,7 @@ li {
     width:100%;
 }
 body {
-    background: #c1b9b9;
+    background: url("../img/bg.jpg");
 }
 .hap-bottom-bar {
     position: absolute;
