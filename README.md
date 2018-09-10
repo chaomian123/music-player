@@ -14,5 +14,5 @@ music-player (使用electron技术的JavaScript项目)
 ![Image text](http://wx1.sinaimg.cn/large/77b25649gy1fv3u5rmggrj20ce0iqgon.jpg)
 
 ---
-![Image text](http://wx4.sinaimg.cn/large/77b25649gy1fv4288xyyeg20bv0jb12z.gif
+![Image text](http://wx1.sinaimg.cn/large/77b25649gy1fv44kulywpg20c30jbwu8.gif
 )
