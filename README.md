@@ -31,7 +31,7 @@
 
 #### 已经编译好的音乐播放器文件下载地址
     (绿色解压版, 已内置了几首好听的纯音乐, 可以打开文件目录里的audio进行替换)
-    链接： https://share.weiyun.com/5IJ6BVD （密码：MSM）
+    链接： https://share.weiyun.com/5IJ6BVD  （密码：mIhO）
 ---
 #### 项目展示动图
 ![Image text](http://wx1.sinaimg.cn/large/77b25649gy1fv44kulywpg20c30jbwu8.gif
