@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-
+//自定义了log函数,减少调试时候的工作量
 const log = console.log.bind(console)
 
 const e = (selector) => document.querySelector(selector)
@@ -145,9 +145,16 @@ const initPlayer = () => {
     fs.readdir(audioDir, function(error, files) {
             let items = files
             let o = {
-                song:[],
-                img:[],
+                song: [],
+                img: [],
             }
+            // o.song.filter(file => {
+            //     return (file.endsWith('mp3'))
+            // })
+            //
+            // o.img.filter(file => {
+            //     return (file.endsWith('jpg'))
+            // })
             for (let file of items) {
                 if (file.endsWith('mp3')) {
                     o.song.push(file)
@@ -231,7 +238,7 @@ const bindEventNextSong = (player) => {
 }
 const bindEventPreviousSong = (player) => {
     let next = e('.fa-step-backward')
-    next.addEventListener('click', (event) => {
+    next.addEventListener('click', () => {
         let songs = allSongs()
         let song = previousSong(songs)
         let currentSong = e('.hap-active')
@@ -315,7 +322,6 @@ const bindEventShowTime = function(player) {
             return
         }
         tooltip.style.display = 'block'
-
         let current = seekX / 280 * totalTime
         let minutes = (current / 60).toFixed(0)
         let seconds = (current % 60).toFixed(0)
@@ -358,6 +364,7 @@ const bindEventCoverChange = (player) => {
     })
 }
 const bindEvents = (player) => {
+    //所有绑定事件的功能用简短清晰的名词展示
     bindEventCurrentTime(player)
     bindEventsPlay(player)
     bindEventShuffle(player)
@@ -371,10 +378,13 @@ const bindEvents = (player) => {
 }
 
 const __main = () => {
-    // 找到 audio 标签并赋值给 player
+    //将播放器的audio文件复制给player
     const player = e('#id-audio-player')
+    //初始化播放器(引入保存在指定目录的音乐文件)
     initPlayer(player)
+    //按钮的动画效果
     btnAnimation()
+    //绑定所有播放器的事件函数
     bindEvents(player)
 }
 
